@@ -1,0 +1,41 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dashboard-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    cert-manager.io/issue-temporary-certificate: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"
+    nginx.ingress.kubernetes.io/auth-type: basic
+    nginx.ingress.kubernetes.io/auth-secret: htpasswd-dashboard
+    nginx.ingress.kubernetes.io/auth-realm: "Authentication
+spec:
+  tls:
+    - hosts:
+        - www.oyvindis.com
+      secretName: tls-secret
+  rules:
+    - host: www.oyvindis.com
+      http:
+        paths:
+          - pathType: Prefix
+            path: /dashboard(/|$)(.*)
+            backend:
+              service:
+                name: kubernetes-dashboard
+                port:
+                  number: 443
+          - pathType: Prefix
+            path: /test
+            backend:
+              service:
+                name: banana-service
+                port:
+                  number: 5678
+          - pathType: Prefix
+            path: /test
+            backend:
+              service:
+                name: banana-service
+                port:
+                  number: 6789
